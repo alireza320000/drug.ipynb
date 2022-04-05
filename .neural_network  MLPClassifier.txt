@@ -1,0 +1,155 @@
+#import libarary
+import numpy as np
+import pandas as pd
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import seaborn as sns; sns.set()
+import warnings
+warnings.filterwarnings('ignore')
+#===========================dataset=================================
+heatr_data= pd.read_excel('D:/dataset/Heart.xlsx',header=0)
+# print(heatr_data)
+
+X = heatr_data.values[:,:7]
+y = heatr_data.values[:,7]
+# print(X)
+# print(y)
+#==================================================================
+#counts ndim
+heatr_data.ndim
+#=============================================
+#his is how data is formed
+heatr_data.shape
+#========================================
+#describetion data set 
+heatr_data.describe()
+#=======================================
+#With this function, we understand the general
+#specifications of the database
+heatr_data.info()
+#===============================================================
+#With this option, the last 5 rows of the database are specified
+heatr_data.tail()
+#================================================================
+#chake in values meseing
+heatr_data.isnull().sum()
+#============================================
+# counts sick heart_data 
+heatr_data['sick'].value_counts()
+#=========================================
+X=heatr_data['sick'].values
+y = heatr_data['CKMB pri'].values
+#X
+#y
+#=====================================================
+#chake mesing CKMB pri,Troponin Q
+print(heatr_data['CKMB pri'].isnull().sum())
+print(heatr_data['Troponin Q'].isnull().sum())
+#====================================================
+# chak Qualitative tryponin
+heatr_data['Troponin Q'].value_counts
+#=====================================================
+# counts sex betwen male and female
+heatr_data['Gender'].value_counts()
+#======================================================
+X = heatr_data.drop(columns='sick',axis=1)
+y = heatr_data['sick']
+# y. run in a separate cell
+# X. run in a separate cell
+#======================plot hist==================================
+# Apply the default theme
+heatr_data.hist(figsize=(12, 12),layout=(5, 3));
+#=======================plotcorrlition====================================
+corrmat = heatr_data.corr()
+# plot heat map
+top_corr_features=corrmat.index
+plt.figure(figsize=(20, 20))
+g = sns.heatmap(heatr_data[top_corr_features].corr(),annot=True,cmap="RdYlGn")
+#====================plot corrlition=========================================================
+#In the plot below the green diameter is the number 1, 
+#and the other colors represent the positive or negative
+# of the data columns.
+sns.heatmap(heatr_data.corr(),square=True,cmap="RdYlGn");
+#==========================plot sns======================================
+sns.countplot(x="sick", data=heatr_data, palette="bwr")
+plt.show()
+#=======================counts sick heart===========================================================================================
+#Percentage of patients with myocardial infarction
+countNoDisease = len(heatr_data[heatr_data.sick ==3])
+countHaveDisease = len(heatr_data[heatr_data.sick == 2])
+print("Percentage of Patients Havent Heart Disease: {:.2f}%".format((countNoDisease / (len(heatr_data.sick))*100)))
+print("Percentage of Patients Have Heart Disease: {:.2f}%".format((countHaveDisease / (len(heatr_data.sick))*100)))
+#======================plot sns=============================================
+sns.countplot(x='Gender', data=heatr_data, palette="mako_r")
+plt.xlabel("Gender (0 = female, 1= male)")
+plt.show()
+#=================================================================
+#Removal of some cells by Drupna
+heatr_data.dropna()
+#==============================================================
+#String to append DataFrame column names.
+#Pass a list with length equal to the number of columns when
+#calling get_dummies on a DataFrame. Alternatively, prefix can
+#be a dictionary mapping column names to prefixes.
+heatr_data = pd.get_dummies(heatr_data, drop_first=True)
+heatr_data.head()
+#===============================================================
+#Creat split X,y
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.33, random_state=42)
+#=========================================================================================
+#Seeing the most common X_train and X_test and X.Shape
+print(X.shape,X_train.shape,X_test.shape)
+#==============================================================
+#Conditioning based on myocardial infarction is more or less
+#equal in women or in men
+male =0
+femal =1
+if male > femal:
+    print("Myocardial infarction is more common in men than women")
+elif male == femal:
+    print("Myocardial infarction is equal in men and women")
+else:
+    print("Myocardial infarction is more common in women than men")
+#==========================model================================================
+from sklearn.neural_network import MLPClassifier
+
+clf = MLPClassifier(random_state=0, max_iter=8).fit(X_train, y_train)
+
+
+
+mlp=MLPClassifier(
+    hidden_layer_sizes=(100,100),
+    activation='relu',
+    solver='sgd',
+    alpha=0.0001,
+    batch_size=256,
+    learning_rate='adaptive',
+    learning_rate_init= 0.0001,
+    power_t=0.9,
+    max_iter=8,
+    shuffle=True,
+    random_state=0,
+    tol=1e-6,
+    verbose=0,
+    warm_start=bool,
+    momentum=0.10,
+    nesterovs_momentum=True,
+    early_stopping=False,
+    validation_fraction=0.2,
+    beta_1=0.9,
+    beta_2=0.999,
+    epsilon=1e-08,
+    n_iter_no_change=10,
+    max_fun=16000,
+)
+clf = MLPClassifier(hidden_layer_sizes=(100, 100), verbose=True, max_iter=300)
+mlp.fit(X_test, y_test)
+
+#In this way, you can check the function and itration
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+#==============================================================
+X_test_prediction = model.predict(X_test)
+test_data_accuracy =accuracy_score(X_test_prediction,y_test)
+print('Accuracy Test Precision  data : ',test_data_accuracy)
